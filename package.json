@@ -1,0 +1,48 @@
+{
+  "name": "oauth2-nodejs",
+  "version": "0.0.1",
+  "description": "This library provides basic features to implement your OAuth2 server on node.js",
+  "main": "dist/index.js",
+  "types": "dist.index.d.ts",
+  "scripts": {
+    "lint": "tslint -p .",
+    "clean": "rm -rf dist",
+    "clean:pack": "rm -f *.tgz",
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "build:clean": "yarn clean:pack && yarn clean && yarn build",
+    "package": "yarn build:clean && yarn pack",
+    "test": "yarn build:clean && yarn lint && nyc ava --fail-fast",
+    "test:watch": "yarn build:clean && concurrently -rk \"yarn build:watch\" \"ava -w --fail-fast --serial --verbose\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/yoichiro/oauth2-nodejs.git"
+  },
+  "author": "Yoichiro Tanaka <yoichiro6642@gmail.com> (https://github.com/yoichiro)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/yoichiro/oauth2-nodejs/issues",
+    "email": "yoichiro6642@gmail.com"
+  },
+  "homepage": "https://github.com/yoichiro/oauth2-nodejs.git",
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text"
+    ]
+  },
+  "dependencies": {
+  },
+  "devDependencies": {
+    "@types/node": "^10.5.2",
+    "ava": "^0.25.0",
+    "concurrently": "^3.6.0",
+    "nyc": "^12.0.2",
+    "sinon": "^6.1.3",
+    "ts-sinon": "^1.0.12",
+    "tslint": "^5.8.0",
+    "typescript": "^2.5.3"
+  },
+  "private": true
+}

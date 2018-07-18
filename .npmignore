@@ -1,0 +1,10 @@
+_test
+tslint.json
+tsconfig.json
+*.log
+*.tgz
+*.DS_Store
+.nyc_output
+coverage
+.idea
+*.iml
