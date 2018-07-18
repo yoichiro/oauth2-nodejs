@@ -43,6 +43,5 @@
     "ts-sinon": "^1.0.12",
     "tslint": "^5.8.0",
     "typescript": "^2.5.3"
-  },
-  "private": true
+  }
 }
