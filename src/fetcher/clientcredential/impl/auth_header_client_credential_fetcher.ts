@@ -1,6 +1,5 @@
 import {ClientCredentialFetcher} from "../client_credential_fetcher";
-import {Request} from "../../../models/request";
-import {ClientCredential} from "../../../models/client_credential";
+import {Request, ClientCredential} from "../../../models";
 
 export class AuthHeaderClientCredentialFetcher implements ClientCredentialFetcher {
 
@@ -20,6 +19,9 @@ export class AuthHeaderClientCredentialFetcher implements ClientCredentialFetche
 
   fetch(request: Request): ClientCredential {
     const header = request.getHeader("Authorization")
+    if (!header) {
+      throw new Error("fetch() method was called when match() result was false.")
+    }
     const matcher = this.REGEXP_BASIC.exec(header)
     if (!matcher) {
       throw new Error("fetch() method was called when match() result was false.")

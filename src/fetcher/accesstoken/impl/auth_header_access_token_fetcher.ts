@@ -10,12 +10,18 @@ export class AuthHeaderAccessTokenFetcher implements AccessTokenFetcher {
   private readonly REGEXP_HEADER: RegExp = /^\s*(OAuth|Bearer)(.*)$/
 
   match(request: Request): boolean {
-    const header: string = request.getHeader(this.HEADER_AUTHORIZATION);
-    return (header !== null) && (this.REGEXP_HEADER.test(header));
+    const header = request.getHeader(this.HEADER_AUTHORIZATION)
+    if (header) {
+      return this.REGEXP_HEADER.test(header)
+    }
+    return false
   }
 
   fetch(request: Request): FetchResult {
     const header = request.getHeader(this.HEADER_AUTHORIZATION)
+    if (!header) {
+      throw new Error("fetch() method was called when match() result was false.")
+    }
     let matcher = this.REGEXP_AUTHORIZATION.exec(header)
     if (!matcher) {
       throw new Error("fetch() method was called when match() result was false.")

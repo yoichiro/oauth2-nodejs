@@ -8,6 +8,7 @@ import {DefaultClientCredentialFetcherProvider} from "../../../fetcher/clientcre
 import {ClientCredentialsGrantHandler} from "../client_credentials_grant_handler";
 import {AccessToken} from "../../../models/access_token";
 import {AuthInfo} from "../../../models/auth_info";
+import {UnknownError} from "../../../exceptions";
 
 const createRequestMockWithParams = (params: {[key: string]: string}): Request => {
   const stub = stubInterface<Request>()
@@ -41,12 +42,27 @@ test("ClientCredentialsGrantHandler returns InvalidRequest when client credentia
   t.is(actual.error instanceof InvalidRequest, true)
 })
 
-test("ClientCredentialsGrantHandler returns InvalidClient when userId not found", async t => {
+test("ClientCredentialsGrantHandler returns InvalidClient when userId is undefined", async t => {
   const subject = new ClientCredentialsGrantHandler()
   subject.clientCredentialFetcherProvider = new DefaultClientCredentialFetcherProvider()
 
   const request = createRequestMockWithParams({})
   const dataHandler = createDataHandlerMock(request)
+  dataHandler["getClientUserId"] = sinon.stub().returns(undefined)
+
+  const actual = await subject.handleRequest(dataHandler)
+
+  t.is(actual.isError(), true)
+  t.is(actual.error instanceof InvalidClient, true)
+})
+
+test("ClientCredentialsGrantHandler returns InvalidClient when userId is empty", async t => {
+  const subject = new ClientCredentialsGrantHandler()
+  subject.clientCredentialFetcherProvider = new DefaultClientCredentialFetcherProvider()
+
+  const request = createRequestMockWithParams({})
+  const dataHandler = createDataHandlerMock(request)
+  dataHandler["getClientUserId"] = sinon.stub().returns("")
 
   const actual = await subject.handleRequest(dataHandler)
 
@@ -61,11 +77,30 @@ test("ClientCredentialsGrantHandler returns InvalidClient when authInfo not foun
   const request = createRequestMockWithParams({})
   const dataHandler = createDataHandlerMock(request)
   dataHandler["getClientUserId"] = sinon.stub().returns("userId1")
+  dataHandler["createOrUpdateAuthInfo"] = sinon.stub().returns(undefined)
 
   const actual = await subject.handleRequest(dataHandler)
 
   t.is(actual.isError(), true)
   t.is(actual.error instanceof InvalidGrant, true)
+})
+
+test("ClientCredentialsGrantHandler returns UnknownError when issuring access token failed", async t => {
+  const subject = new ClientCredentialsGrantHandler()
+  subject.clientCredentialFetcherProvider = new DefaultClientCredentialFetcherProvider()
+
+  const request = createRequestMockWithParams({"scope": "scope1"})
+  const dataHandler = createDataHandlerMock(request)
+  dataHandler["getClientUserId"] = sinon.stub().returns("userId1")
+  const authInfo = new AuthInfo()
+  authInfo.clientId = "clientId1"
+  dataHandler["createOrUpdateAuthInfo"] = sinon.stub().returns(authInfo)
+  dataHandler["createOrUpdateAccessToken"] = sinon.stub().returns(undefined)
+
+  const actual = await subject.handleRequest(dataHandler)
+
+  t.is(actual.isError(), true)
+  t.is(actual.error instanceof UnknownError, true)
 })
 
 test("ClientCredentialsGrantHandler returns access token with simple response", async t => {

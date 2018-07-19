@@ -28,6 +28,17 @@ test("AuthHeaderAccessTokenFetcher#match decides whether the passed request is m
   t.is(subject.match(createRequestMock("bearer token1")), false)
 })
 
+test("AuthHeaderAccessTokenFetcher#fetch doesn't fetch an access token because Authorization heaader not found", t => {
+  const subject = new AuthHeaderAccessTokenFetcher()
+  const request = stubInterface<Request>()
+  try {
+    subject.fetch(request)
+    t.fail()
+  } catch(e) {
+    t.pass()
+  }
+})
+
 test("AuthHeaderAccessTokenFetcher#fetch fetches an access token from the request with Bearer token", t => {
   const subject = new AuthHeaderAccessTokenFetcher()
   const request = createRequestMock("Bearer access_token_value")
