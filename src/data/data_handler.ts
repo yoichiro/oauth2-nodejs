@@ -1,6 +1,4 @@
-import {Request} from "../models/request";
-import {AuthInfo} from "../models/auth_info";
-import {AccessToken} from "../models/access_token";
+import {Request, AuthInfo, AccessToken} from "../models";
 
 export interface DataHandler {
 
@@ -8,24 +6,24 @@ export interface DataHandler {
 
   validateClient(clientId: string, clientSecret: string, grantType: string): Promise<boolean>
 
-  getUserId(username: string, password: string): Promise<string>
+  getUserId(username: string, password: string): Promise<string | undefined>
 
-  createOrUpdateAuthInfo(clientId: string, userId: string, scope?: string): Promise<AuthInfo>
+  createOrUpdateAuthInfo(clientId: string, userId: string, scope?: string): Promise<AuthInfo | undefined>
 
-  createOrUpdateAccessToken(authInfo: AuthInfo): Promise<AccessToken>
+  createOrUpdateAccessToken(authInfo: AuthInfo): Promise<AccessToken | undefined>
 
-  getAuthInfoByCode(code: string): Promise<AuthInfo>
+  getAuthInfoByCode(code: string): Promise<AuthInfo | undefined>
 
-  getAuthInfoByRefreshToken(refreshToken: string): Promise<AuthInfo>
+  getAuthInfoByRefreshToken(refreshToken: string): Promise<AuthInfo | undefined>
 
-  getClientUserId(clientId: string, clientSecret: string): Promise<string>
+  getClientUserId(clientId: string, clientSecret: string): Promise<string | undefined>
 
   validateClientById(clientId: string): Promise<boolean>
 
   validateUserById(userId: string): Promise<boolean>
 
-  getAccessToken(token: string): Promise<AccessToken>
+  getAccessToken(token: string): Promise<AccessToken | undefined>
 
-  getAuthInfoById(id: string): Promise<AuthInfo>
+  getAuthInfoById(id: string): Promise<AuthInfo | undefined>
 
 }

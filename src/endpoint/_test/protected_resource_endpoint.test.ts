@@ -103,6 +103,7 @@ test("ProtectedResourceEndpoint returns an error response when authInfo not foun
     create: dataHandler
   })
   subject.dataHandlerFactory = dataHandlerFactory
+  dataHandler["getAuthInfoById"] = sinon.stub().returns(undefined)
   const accessTokenFetcherProvider = new AccessTokenFetcherProvider()
   accessTokenFetcherProvider.fetchers = [
     new AuthHeaderAccessTokenFetcher()

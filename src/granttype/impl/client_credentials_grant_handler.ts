@@ -3,6 +3,7 @@ import {DataHandler} from "../../data/data_handler";
 import {Result} from "../../utils/result";
 import {GrantHandlerResult} from "../grant_handler";
 import {InvalidClient, InvalidGrant} from "../../exceptions/oauth_error";
+import {UnknownError} from "../../exceptions";
 
 export class ClientCredentialsGrantHandler extends AbstractGrantHandler {
 
@@ -30,6 +31,9 @@ export class ClientCredentialsGrantHandler extends AbstractGrantHandler {
     }
 
     const result = await this.issueAccessToken(dataHandler, authInfo)
+    if (!result) {
+      return Result.error(new UnknownError("Issuing Access token failed"))
+    }
     return Result.success(result)
   }
 

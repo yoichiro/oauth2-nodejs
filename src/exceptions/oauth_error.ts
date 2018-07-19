@@ -173,3 +173,15 @@ export class InsufficientScope extends OAuthError {
   }
 
 }
+
+export class UnknownError extends OAuthError {
+
+  constructor(description: string) {
+    super(500, description)
+  }
+
+  public getType(): string {
+    return "unknown_error"
+  }
+
+}

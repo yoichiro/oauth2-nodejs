@@ -8,6 +8,7 @@ import {DefaultClientCredentialFetcherProvider} from "../../../fetcher/clientcre
 import {AuthorizationCodeGrantHandler} from "../authorization_code_grant_handler";
 import {AuthInfo} from "../../../models/auth_info";
 import {AccessToken} from "../../../models/access_token";
+import {UnknownError} from "../../../exceptions";
 
 const createRequestMockWithParams = (params: {[key: string]: string}): Request => {
   const stub = stubInterface<Request>()
@@ -73,6 +74,7 @@ test("AuthorizationCodeGrantHandler returns InvalidGrant when authInfo not found
 
   const request = createRequestMockWithParams({"code": "code1", "redirect_uri": "redirectUri1"})
   const dataHandler = createDataHandlerMock(request)
+  dataHandler["getAuthInfoByCode"] = sinon.stub().returns(undefined)
 
   const actual = await subject.handleRequest(dataHandler)
 
@@ -127,6 +129,24 @@ test("AuthorizationCodeGrantHandler returns RedirectUriMismatch when redirect_ur
 
   t.is(actual.isError(), true)
   t.is(actual.error instanceof RedirectUriMismatch, true)
+})
+
+test("AuthorizationCodeGrantHandler returns RedirectUriMismatch when issuring access token failed", async t => {
+  const subject = new AuthorizationCodeGrantHandler()
+  subject.clientCredentialFetcherProvider = new DefaultClientCredentialFetcherProvider()
+
+  const request = createRequestMockWithParams({"code": "code1", "redirect_uri": "redirectUri1"})
+  const dataHandler = createDataHandlerMock(request)
+  const authInfo = new AuthInfo()
+  authInfo.clientId = "clientId1"
+  authInfo.redirectUri = "redirectUri1"
+  dataHandler["getAuthInfoByCode"] = sinon.stub().returns(authInfo)
+  dataHandler["createOrUpdateAccessToken"] = sinon.stub().returns(undefined)
+
+  const actual = await subject.handleRequest(dataHandler)
+
+  t.is(actual.isError(), true)
+  t.is(actual.error instanceof UnknownError, true)
 })
 
 test("AuthorizationCodeGrantHandler returns access token with simple response", async t => {

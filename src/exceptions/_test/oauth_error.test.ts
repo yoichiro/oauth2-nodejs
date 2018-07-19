@@ -5,7 +5,7 @@ import {
   InvalidRequest, InvalidScope, InvalidToken,
   OAuthError,
   RedirectUriMismatch,
-  UnauthorizedClient, UnsupportedGrantType, UnsupportedResponseType
+  UnauthorizedClient, UnknownError, UnsupportedGrantType, UnsupportedResponseType
 } from "../oauth_error";
 
 class OAuthErrorMock extends OAuthError {
@@ -129,4 +129,12 @@ test("InsufficientScope has some properties", t => {
   t.is(subject.code, 401)
   t.is(subject.description, "description1")
   t.is(subject.getType(), "insufficient_scope")
+})
+
+test("UnknownError has some properties", t => {
+  const subject = new UnknownError("description1")
+
+  t.is(subject.code, 500)
+  t.is(subject.description, "description1")
+  t.is(subject.getType(), "unknown_error")
 })

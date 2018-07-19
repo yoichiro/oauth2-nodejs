@@ -8,6 +8,7 @@ import {DefaultClientCredentialFetcherProvider} from "../../../fetcher/clientcre
 import {InvalidClient, InvalidGrant, InvalidRequest} from "../../../exceptions/oauth_error";
 import {AuthInfo} from "../../../models/auth_info";
 import {AccessToken} from "../../../models/access_token";
+import {UnknownError} from "../../../exceptions";
 
 const createRequestMockWithParams = (params: {[key: string]: string}): Request => {
   const stub = stubInterface<Request>()
@@ -60,6 +61,7 @@ test("RefreshTokenGrantHandler returns InvalidGrant when authInfo not found", as
 
   const request = createRequestMockWithParams({"refresh_token": "refreshToken1"})
   const dataHandler = createDataHandlerMock(request)
+  dataHandler["getAuthInfoByRefreshToken"] = sinon.stub().returns(undefined)
 
   const actual = await subject.handleRequest(dataHandler)
 
@@ -81,6 +83,23 @@ test("RefreshTokenGrantHandler returns InvalidClient when clientId mismatch", as
 
   t.is(actual.isError(), true)
   t.is(actual.error instanceof InvalidClient, true)
+})
+
+test("RefreshTokenGrantHandler returns UnknownError when issuring access token failed", async t => {
+  const subject = new RefreshTokenGrantHandler()
+  subject.clientCredentialFetcherProvider = new DefaultClientCredentialFetcherProvider()
+
+  const request = createRequestMockWithParams({"refresh_token": "refreshToken1"})
+  const dataHandler = createDataHandlerMock(request)
+  const authInfo = new AuthInfo()
+  authInfo.clientId = "clientId1"
+  dataHandler["getAuthInfoByRefreshToken"] = sinon.stub().returns(authInfo)
+  dataHandler["createOrUpdateAccessToken"] = sinon.stub().returns(undefined)
+
+  const actual = await subject.handleRequest(dataHandler)
+
+  t.is(actual.isError(), true)
+  t.is(actual.error instanceof UnknownError, true)
 })
 
 test("RefreshTokenGrantHandler returns access token with simple response", async t => {

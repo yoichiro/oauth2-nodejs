@@ -25,6 +25,17 @@ test("AuthHeaderClientCredentialFetcher#match decides whether the passed request
   t.is(subject.match(createRequestMock("basic Y2xpZW50X2lkX3ZhbHVlOmNsaWVudF9zZWNyZXRfdmFsdWU=")), false)
 })
 
+test("AuthHeaderClientCredentialFetcher#fetch doesn't fetch a client credential because Authorization header not found", t => {
+  const subject = new AuthHeaderClientCredentialFetcher()
+  const request = stubInterface<Request>()
+  try {
+    subject.fetch(request)
+    t.fail()
+  } catch(e) {
+    t.pass()
+  }
+})
+
 test("AuthHeaderClientCredentialFetcher#fetch fetches a client credential from the request header with valid string", t => {
   const subject = new AuthHeaderClientCredentialFetcher()
   const request = createRequestMock("Basic Y2xpZW50X2lkX3ZhbHVlOmNsaWVudF9zZWNyZXRfdmFsdWU=")

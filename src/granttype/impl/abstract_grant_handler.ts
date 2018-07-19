@@ -24,8 +24,11 @@ export abstract class AbstractGrantHandler implements GrantHandler {
     }
   }
 
-  protected async issueAccessToken(dataHandler: DataHandler, authInfo: AuthInfo): Promise<GrantHandlerResult> {
+  protected async issueAccessToken(dataHandler: DataHandler, authInfo: AuthInfo): Promise<GrantHandlerResult | undefined> {
     const accessToken = await dataHandler.createOrUpdateAccessToken(authInfo)
+    if (!accessToken) {
+      return undefined
+    }
     const result = new GrantHandlerResult("Bearer", accessToken.token)
     if (accessToken.expiresIn > 0) {
       result.expiresIn = accessToken.expiresIn
