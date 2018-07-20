@@ -1,30 +1,33 @@
-import {OAuthError} from "../exceptions/oauth_error";
+import {OAuthError} from "../exceptions";
 
 export class Result<T> {
 
-  private _value: T
-  private _error: OAuthError
+  private _value: T | undefined
+  private _error: OAuthError | undefined
 
-  constructor(value: T);
-  constructor(error: OAuthError);
-  constructor(v: T | OAuthError) {
-    if (v instanceof OAuthError) {
-      this._error = v
-    } else {
-      this._value = v
-    }
+  constructor(value?: T, error?: OAuthError) {
+    this._value = value
+    this._error = error
   }
 
   public get value(): T {
-    return this._value
+    if (this._value) {
+      return this._value
+    } else {
+      throw new Error("The value not set")
+    }
   }
 
   public get error(): OAuthError {
-    return this._error
+    if (this._error) {
+      return this._error
+    } else {
+      throw new Error("The error not set")
+    }
   }
 
   public isSuccess(): boolean {
-    return this._value !== undefined
+    return this._error === undefined
   }
 
   public isError(): boolean {
@@ -32,15 +35,23 @@ export class Result<T> {
   }
 
   public convertError<X>(): Result<X> {
-    return Result.error<X>(this._error)
+    if (this._error) {
+      return Result.error<X>(this._error)
+    } else {
+      throw new Error("convertError() called against the success result")
+    }
   }
 
-  public static success<T>(value: T): Result<T> {
-    return new Result<T>(value)
+  public static success<T>(value?: T): Result<T> {
+    if (value) {
+      return new Result<T>(value)
+    } else {
+      return new Result<T>()
+    }
   }
 
   public static error<T>(error: OAuthError): Result<T> {
-    return new Result<T>(error)
+    return new Result<T>(undefined, error)
   }
 
 }
