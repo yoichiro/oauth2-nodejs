@@ -3,7 +3,7 @@ import {DataHandler} from "../../data/data_handler";
 import {GrantHandlerResult} from "../grant_handler";
 import {InvalidClient, InvalidGrant} from "../../exceptions/oauth_error";
 import {Result} from "../../utils/result";
-import {UnknownError} from "../../exceptions";
+import {InvalidScope, UnknownError} from "../../exceptions";
 
 export class PasswordGrantHandler extends AbstractGrantHandler {
 
@@ -34,6 +34,9 @@ export class PasswordGrantHandler extends AbstractGrantHandler {
       return Result.error(new InvalidGrant(""))
     }
     const scope = request.getParameter("scope")
+    if (!await dataHandler.validateScope(clientId, scope)) {
+      return Result.error(new InvalidScope(""))
+    }
 
     const authInfo = await dataHandler.createOrUpdateAuthInfo(clientId, userId, scope)
     if (!authInfo) {

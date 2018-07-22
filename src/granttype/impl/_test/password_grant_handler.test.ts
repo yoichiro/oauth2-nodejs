@@ -8,7 +8,7 @@ import {InvalidClient, InvalidGrant, InvalidRequest} from "../../../exceptions/o
 import {DefaultClientCredentialFetcherProvider} from "../../../fetcher/clientcredential/impl/default_client_credential_fetcher_provider";
 import {AuthInfo} from "../../../models/auth_info";
 import {AccessToken} from "../../../models/access_token";
-import {UnknownError} from "../../../exceptions";
+import {InvalidScope, UnknownError} from "../../../exceptions";
 
 const createRequestMockWithParams = (params: {[key: string]: string}): Request => {
   const stub = stubInterface<Request>()
@@ -109,6 +109,21 @@ test("PasswordGrantHandler returns InvalidGrant when userId is empty", async t =
   t.is(actual.error instanceof InvalidGrant, true)
 })
 
+test("PasswordGrantHandler returns InvalidScope when userId is empty", async t => {
+  const subject = new PasswordGrantHandler()
+  subject.clientCredentialFetcherProvider = new DefaultClientCredentialFetcherProvider()
+
+  const request = createRequestMockWithParams({"username": "username1", "password": "password1"})
+  const dataHandler = createDataHandlerMock(request)
+  dataHandler["getUserId"] = sinon.stub().returns("userId1")
+  dataHandler["validateScope"] = sinon.stub().returns(false)
+
+  const actual = await subject.handleRequest(dataHandler)
+
+  t.is(actual.isError(), true)
+  t.is(actual.error instanceof InvalidScope, true)
+})
+
 test("PasswordGrantHandler returns InvalidGrant when authInfo not found", async t => {
   const subject = new PasswordGrantHandler()
   subject.clientCredentialFetcherProvider = new DefaultClientCredentialFetcherProvider()
@@ -116,6 +131,7 @@ test("PasswordGrantHandler returns InvalidGrant when authInfo not found", async 
   const request = createRequestMockWithParams({"username": "username1", "password": "password1"})
   const dataHandler = createDataHandlerMock(request)
   dataHandler["getUserId"] = sinon.stub().returns("userId1")
+  dataHandler["validateScope"] = sinon.stub().returns(true)
   dataHandler["createOrUpdateAuthInfo"] = sinon.stub().returns(undefined)
 
   const actual = await subject.handleRequest(dataHandler)
@@ -131,6 +147,7 @@ test("PasswordGrantHandler returns InvalidGrant when clientId mismatch", async t
   const request = createRequestMockWithParams({"username": "username1", "password": "password1"})
   const dataHandler = createDataHandlerMock(request)
   dataHandler["getUserId"] = sinon.stub().returns("userId1")
+  dataHandler["validateScope"] = sinon.stub().returns(true)
   const authInfo = new AuthInfo()
   authInfo.clientId = "clientId2"
   dataHandler["createOrUpdateAuthInfo"] = sinon.stub().returns(authInfo)
@@ -148,6 +165,7 @@ test("PasswordGrantHandler returns UnknownError when issuring access token faile
   const request = createRequestMockWithParams({"username": "username1", "password": "password1"})
   const dataHandler = createDataHandlerMock(request)
   dataHandler["getUserId"] = sinon.stub().returns("userId1")
+  dataHandler["validateScope"] = sinon.stub().returns(true)
   const authInfo = new AuthInfo()
   authInfo.clientId = "clientId1"
   dataHandler["createOrUpdateAuthInfo"] = sinon.stub().returns(authInfo)
@@ -166,6 +184,7 @@ test("PasswordGrantHandler returns access token with simple response", async t =
   const request = createRequestMockWithParams({"username": "username1", "password": "password1", "scope": "scope1"})
   const dataHandler = createDataHandlerMock(request)
   dataHandler["getUserId"] = sinon.stub().returns("userId1")
+  dataHandler["validateScope"] = sinon.stub().returns(true)
   const authInfo = new AuthInfo()
   authInfo.clientId = "clientId1"
   dataHandler["createOrUpdateAuthInfo"] = sinon.stub().returns(authInfo)
@@ -191,6 +210,7 @@ test("PasswordGrantHandler returns access token with full response", async t => 
   const request = createRequestMockWithParams({"username": "username1", "password": "password1", "scope": "scope1"})
   const dataHandler = createDataHandlerMock(request)
   dataHandler["getUserId"] = sinon.stub().returns("userId1")
+  dataHandler["validateScope"] = sinon.stub().returns(true)
   const authInfo = new AuthInfo()
   authInfo.clientId = "clientId1"
   authInfo.redirectUri = "redirectUri1"

@@ -12,6 +12,8 @@ export interface DataHandler {
 
   validateRedirectUri(clientId: string, redirectUri: string): Promise<boolean>
 
+  validateScope(clientId: string, scope?: string): Promise<boolean>
+
   getUserId(username: string, password: string): Promise<string | undefined>
 
   createOrUpdateAuthInfo(clientId: string, userId: string, scope?: string): Promise<AuthInfo | undefined>

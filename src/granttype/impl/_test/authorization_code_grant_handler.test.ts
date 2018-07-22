@@ -122,8 +122,8 @@ test("AuthorizationCodeGrantHandler returns RedirectUriMismatch when redirect_ur
   const dataHandler = createDataHandlerMock(request)
   const authInfo = new AuthInfo()
   authInfo.clientId = "clientId1"
-  authInfo.redirectUri = "redirectUri2"
   dataHandler["getAuthInfoByCode"] = sinon.stub().returns(authInfo)
+  dataHandler["validateRedirectUri"] = sinon.stub().returns(false)
 
   const actual = await subject.handleRequest(dataHandler)
 
@@ -131,7 +131,7 @@ test("AuthorizationCodeGrantHandler returns RedirectUriMismatch when redirect_ur
   t.is(actual.error instanceof RedirectUriMismatch, true)
 })
 
-test("AuthorizationCodeGrantHandler returns RedirectUriMismatch when issuring access token failed", async t => {
+test("AuthorizationCodeGrantHandler returns UnknownError when issuring access token failed", async t => {
   const subject = new AuthorizationCodeGrantHandler()
   subject.clientCredentialFetcherProvider = new DefaultClientCredentialFetcherProvider()
 
@@ -141,6 +141,7 @@ test("AuthorizationCodeGrantHandler returns RedirectUriMismatch when issuring ac
   authInfo.clientId = "clientId1"
   authInfo.redirectUri = "redirectUri1"
   dataHandler["getAuthInfoByCode"] = sinon.stub().returns(authInfo)
+  dataHandler["validateRedirectUri"] = sinon.stub().returns(true)
   dataHandler["createOrUpdateAccessToken"] = sinon.stub().returns(undefined)
 
   const actual = await subject.handleRequest(dataHandler)
@@ -159,6 +160,7 @@ test("AuthorizationCodeGrantHandler returns access token with simple response", 
   authInfo.clientId = "clientId1"
   authInfo.redirectUri = "redirectUri1"
   dataHandler["getAuthInfoByCode"] = sinon.stub().returns(authInfo)
+  dataHandler["validateRedirectUri"] = sinon.stub().returns(true)
   const accessToken = new AccessToken()
   accessToken.token = "accessToken1"
   dataHandler["createOrUpdateAccessToken"] = sinon.stub().returns(accessToken)
@@ -186,6 +188,7 @@ test("AuthorizationCodeGrantHandler returns access token with full response", as
   authInfo.refreshToken = "refreshToken1"
   authInfo.scope = "scope1"
   dataHandler["getAuthInfoByCode"] = sinon.stub().returns(authInfo)
+  dataHandler["validateRedirectUri"] = sinon.stub().returns(true)
   const accessToken = new AccessToken()
   accessToken.token = "accessToken1"
   accessToken.expiresIn = 123

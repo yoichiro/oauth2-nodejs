@@ -1,9 +1,8 @@
 import {AbstractGrantHandler} from "./abstract_grant_handler";
-import {DataHandler} from "../../data/data_handler";
-import {Result} from "../../utils/result";
+import {DataHandler} from "../../data";
+import {Result} from "../../utils";
 import {GrantHandlerResult} from "../grant_handler";
-import {InvalidClient, InvalidGrant, RedirectUriMismatch} from "../../exceptions/oauth_error";
-import {UnknownError} from "../../exceptions";
+import {InvalidClient, InvalidGrant, RedirectUriMismatch, UnknownError} from "../../exceptions";
 
 export class AuthorizationCodeGrantHandler extends AbstractGrantHandler {
 
@@ -36,8 +35,7 @@ export class AuthorizationCodeGrantHandler extends AbstractGrantHandler {
     if (authInfo.clientId !== clientId) {
       return Result.error(new InvalidClient(""))
     }
-    if (!((authInfo.redirectUri && authInfo.redirectUri.length !== 0) &&
-      (authInfo.redirectUri === redirectUri))) {
+    if (!await dataHandler.validateRedirectUri(clientId, redirectUri)) {
       return Result.error(new RedirectUriMismatch(""))
     }
 

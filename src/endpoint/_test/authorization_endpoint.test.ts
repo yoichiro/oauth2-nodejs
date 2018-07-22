@@ -4,7 +4,7 @@ import * as sinon from "sinon";
 import {AccessToken, AuthInfo, Request} from "../../models";
 import {DataHandler, DataHandlerFactory} from "../../data";
 import {AuthorizationEndpoint, AuthorizationEndpointResponse} from "../authorization_endpoint";
-import {InvalidClient, InvalidRequest, UnknownError} from "../../exceptions";
+import {InvalidClient, InvalidRequest, InvalidScope, UnknownError} from "../../exceptions";
 
 test("AuthorizationEndpointResponse has some properties", t => {
   const subject = new AuthorizationEndpointResponse()
@@ -192,6 +192,36 @@ test("AuthorizationEndpoint#handleRequest returns error result when redirect_uri
   t.is(result.error instanceof InvalidClient, true)
 })
 
+test("AuthorizationEndpoint#handleRequest returns error result when scope is invalid", async t => {
+  const request = createRequestMock({
+    "response_type": "responseType1",
+    "client_id": "clientId1",
+    "redirect_uri": "redirectUri1",
+    "scope": "evil"
+  }, {})
+
+  const dataHandler = stubInterface<DataHandler>({
+    getRequest: request,
+    validateClientById: true,
+    validateClientForAuthorization: true,
+    validateRedirectUri: true,
+    validateScope: false
+  })
+  const dataHandlerFactory = stubInterface<DataHandlerFactory>({
+    create: dataHandler
+  })
+  const allowedResponseTypes: string[] = ["responseType1"]
+
+  const subject = new AuthorizationEndpoint()
+  subject.dataHandlerFactory = dataHandlerFactory
+  subject.allowedResponseTypes = allowedResponseTypes
+
+  const result = await subject.handleRequest(request)
+
+  t.is(result.isError(), true)
+  t.is(result.error instanceof InvalidScope, true)
+})
+
 test("AuthorizationEndpoint#handleRequest returns success result", async t => {
   const request = createRequestMock({
     "response_type": "responseType1",
@@ -203,7 +233,8 @@ test("AuthorizationEndpoint#handleRequest returns success result", async t => {
     getRequest: request,
     validateClientById: true,
     validateClientForAuthorization: true,
-    validateRedirectUri: true
+    validateRedirectUri: true,
+    validateScope: true
   })
   const dataHandlerFactory = stubInterface<DataHandlerFactory>({
     create: dataHandler
