@@ -8,7 +8,7 @@ import {DefaultClientCredentialFetcherProvider} from "../../../fetcher/clientcre
 import {ClientCredentialsGrantHandler} from "../client_credentials_grant_handler";
 import {AccessToken} from "../../../models/access_token";
 import {AuthInfo} from "../../../models/auth_info";
-import {UnknownError} from "../../../exceptions";
+import {InvalidScope, UnknownError} from "../../../exceptions";
 
 const createRequestMockWithParams = (params: {[key: string]: string}): Request => {
   const stub = stubInterface<Request>()
@@ -70,6 +70,21 @@ test("ClientCredentialsGrantHandler returns InvalidClient when userId is empty",
   t.is(actual.error instanceof InvalidClient, true)
 })
 
+test("ClientCredentialsGrantHandler returns InvalidScope when scope is invalid", async t => {
+  const subject = new ClientCredentialsGrantHandler()
+  subject.clientCredentialFetcherProvider = new DefaultClientCredentialFetcherProvider()
+
+  const request = createRequestMockWithParams({})
+  const dataHandler = createDataHandlerMock(request)
+  dataHandler["getClientUserId"] = sinon.stub().returns("userId1")
+  dataHandler["validateScope"] = sinon.stub().returns(false)
+
+  const actual = await subject.handleRequest(dataHandler)
+
+  t.is(actual.isError(), true)
+  t.is(actual.error instanceof InvalidScope, true)
+})
+
 test("ClientCredentialsGrantHandler returns InvalidClient when authInfo not found", async t => {
   const subject = new ClientCredentialsGrantHandler()
   subject.clientCredentialFetcherProvider = new DefaultClientCredentialFetcherProvider()
@@ -77,6 +92,7 @@ test("ClientCredentialsGrantHandler returns InvalidClient when authInfo not foun
   const request = createRequestMockWithParams({})
   const dataHandler = createDataHandlerMock(request)
   dataHandler["getClientUserId"] = sinon.stub().returns("userId1")
+  dataHandler["validateScope"] = sinon.stub().returns(true)
   dataHandler["createOrUpdateAuthInfo"] = sinon.stub().returns(undefined)
 
   const actual = await subject.handleRequest(dataHandler)
@@ -92,6 +108,7 @@ test("ClientCredentialsGrantHandler returns UnknownError when issuring access to
   const request = createRequestMockWithParams({"scope": "scope1"})
   const dataHandler = createDataHandlerMock(request)
   dataHandler["getClientUserId"] = sinon.stub().returns("userId1")
+  dataHandler["validateScope"] = sinon.stub().returns(true)
   const authInfo = new AuthInfo()
   authInfo.clientId = "clientId1"
   dataHandler["createOrUpdateAuthInfo"] = sinon.stub().returns(authInfo)
@@ -110,6 +127,7 @@ test("ClientCredentialsGrantHandler returns access token with simple response", 
   const request = createRequestMockWithParams({"scope": "scope1"})
   const dataHandler = createDataHandlerMock(request)
   dataHandler["getClientUserId"] = sinon.stub().returns("userId1")
+  dataHandler["validateScope"] = sinon.stub().returns(true)
   const authInfo = new AuthInfo()
   authInfo.clientId = "clientId1"
   dataHandler["createOrUpdateAuthInfo"] = sinon.stub().returns(authInfo)
@@ -135,6 +153,7 @@ test("ClientCredentialsGrantHandler returns access token with full response", as
   const request = createRequestMockWithParams({"refresh_token": "refreshToken1"})
   const dataHandler = createDataHandlerMock(request)
   dataHandler["getClientUserId"] = sinon.stub().returns("userId1")
+  dataHandler["validateScope"] = sinon.stub().returns(true)
   const authInfo = new AuthInfo()
   authInfo.clientId = "clientId1"
   authInfo.redirectUri = "redirectUri1"

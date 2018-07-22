@@ -1,6 +1,6 @@
 import {DataHandlerFactory} from "../data";
 import {Request} from "../models";
-import {InvalidRequest, InvalidClient, UnknownError} from "../exceptions";
+import {InvalidRequest, InvalidClient, UnknownError, InvalidScope} from "../exceptions";
 import {Result} from "../utils";
 
 export class AuthorizationEndpointResponse {
@@ -79,6 +79,11 @@ export class AuthorizationEndpoint {
     }
     if (!await dataHandler.validateRedirectUri(clientId, redirectUri)) {
       return Result.error(new InvalidClient("'redirect_uri' is invalid"))
+    }
+
+    const scope = request.getParameter("scope")
+    if (!await dataHandler.validateScope(clientId, scope)) {
+      return Result.error(new InvalidScope(""))
     }
 
     return Result.success()
