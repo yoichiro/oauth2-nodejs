@@ -1,6 +1,6 @@
 {
   "name": "oauth2-nodejs",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "This library provides basic features to implement your OAuth2 server on node.js",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
