@@ -31,7 +31,7 @@ export class RefreshTokenGrantHandler extends AbstractGrantHandler {
       return Result.error(new InvalidClient(""))
     }
 
-    const result = await this.issueAccessToken(dataHandler, authInfo)
+    const result = await this.issueAccessToken(dataHandler, authInfo, "refresh_token")
     if (!result) {
       return Result.error(new UnknownError("Issuing Access token failed"))
     }

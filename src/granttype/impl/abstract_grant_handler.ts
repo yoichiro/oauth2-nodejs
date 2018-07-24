@@ -24,8 +24,8 @@ export abstract class AbstractGrantHandler implements GrantHandler {
     }
   }
 
-  protected async issueAccessToken(dataHandler: DataHandler, authInfo: AuthInfo): Promise<GrantHandlerResult | undefined> {
-    const accessToken = await dataHandler.createOrUpdateAccessToken(authInfo)
+  protected async issueAccessToken(dataHandler: DataHandler, authInfo: AuthInfo, grantType: string): Promise<GrantHandlerResult | undefined> {
+    const accessToken = await dataHandler.createOrUpdateAccessToken(authInfo, grantType)
     if (!accessToken) {
       return undefined
     }
@@ -33,8 +33,10 @@ export abstract class AbstractGrantHandler implements GrantHandler {
     if (accessToken.expiresIn > 0) {
       result.expiresIn = accessToken.expiresIn
     }
-    if (authInfo.refreshToken && authInfo.refreshToken.length > 0) {
-      result.refreshToken = authInfo.refreshToken
+    if (grantType !== "client_credentials") {
+      if (authInfo.refreshToken && authInfo.refreshToken.length > 0) {
+        result.refreshToken = authInfo.refreshToken
+      }
     }
     if (authInfo.scope && authInfo.scope.length > 0) {
       result.scope = authInfo.scope

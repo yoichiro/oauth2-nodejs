@@ -33,7 +33,7 @@ export class ClientCredentialsGrantHandler extends AbstractGrantHandler {
       return Result.error(new InvalidGrant(""))
     }
 
-    const result = await this.issueAccessToken(dataHandler, authInfo)
+    const result = await this.issueAccessToken(dataHandler, authInfo, "client_credentials")
     if (!result) {
       return Result.error(new UnknownError("Issuing Access token failed"))
     }

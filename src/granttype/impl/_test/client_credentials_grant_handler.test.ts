@@ -172,6 +172,6 @@ test("ClientCredentialsGrantHandler returns access token with full response", as
   t.is(result.tokenType, "Bearer")
   t.is(result.accessToken, "accessToken1")
   t.is(result.expiresIn, 123)
-  t.is(result.refreshToken, "refreshToken1")
+  t.is(result.refreshToken, undefined)
   t.is(result.scope, "scope1")
 })

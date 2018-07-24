@@ -118,7 +118,7 @@ export class AuthorizationEndpoint {
 
     let accessToken = undefined
     if (responseTypes.indexOf("token") !== -1) {
-      accessToken = await dataHandler.createOrUpdateAccessToken(authInfo)
+      accessToken = await dataHandler.createOrUpdateAccessToken(authInfo, "implicit")
       if (!accessToken) {
         return Result.error(new UnknownError("Access token can't be created"))
       }
