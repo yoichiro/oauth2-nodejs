@@ -46,7 +46,7 @@ export class PasswordGrantHandler extends AbstractGrantHandler {
       return Result.error(new InvalidClient(""))
     }
 
-    const result = await this.issueAccessToken(dataHandler, authInfo)
+    const result = await this.issueAccessToken(dataHandler, authInfo, "password")
     if (!result) {
       return Result.error(new UnknownError("Issuing Access token failed"))
     }

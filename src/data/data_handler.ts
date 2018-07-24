@@ -18,7 +18,7 @@ export interface DataHandler {
 
   createOrUpdateAuthInfo(clientId: string, userId: string, scope?: string): Promise<AuthInfo | undefined>
 
-  createOrUpdateAccessToken(authInfo: AuthInfo): Promise<AccessToken | undefined>
+  createOrUpdateAccessToken(authInfo: AuthInfo, grantType: string): Promise<AccessToken | undefined>
 
   getAuthInfoByCode(code: string): Promise<AuthInfo | undefined>
 

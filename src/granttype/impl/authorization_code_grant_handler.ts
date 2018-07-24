@@ -39,7 +39,7 @@ export class AuthorizationCodeGrantHandler extends AbstractGrantHandler {
       return Result.error(new RedirectUriMismatch(""))
     }
 
-    const result = await this.issueAccessToken(dataHandler, authInfo)
+    const result = await this.issueAccessToken(dataHandler, authInfo, "authorization_code")
     if (!result) {
       return Result.error(new UnknownError("Issuing Access token failed"))
     }
