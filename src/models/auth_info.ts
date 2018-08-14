@@ -7,6 +7,11 @@ export class AuthInfo {
   private _refreshToken: string
   private _code: string
   private _redirectUri: string
+  private _additionalInfo: Map<string, string>
+
+  constructor() {
+    this._additionalInfo = new Map<string, string>()
+  }
 
   get id(): string {
     return this._id;
@@ -62,6 +67,22 @@ export class AuthInfo {
 
   set redirectUri(value: string) {
     this._redirectUri = value;
+  }
+
+  getAdditionalInfo(name: string): string | undefined {
+    return this._additionalInfo.get(name)
+  }
+
+  setAdditionalInfo(name: string, value: string): void {
+    this._additionalInfo.set(name, value)
+  }
+
+  deleteAdditionalInfo(name: string): void {
+    this._additionalInfo.delete(name)
+  }
+
+  getAdditionalInfoNames(): string[] {
+    return [ ...this._additionalInfo.keys() ]
   }
 
 }
