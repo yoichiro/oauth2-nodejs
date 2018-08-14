@@ -25,3 +25,17 @@ test("AuthInfo has some properties", t => {
   subject.scope = "scope1"
   t.is(subject.scope, "scope1")
 })
+
+test("AuthInfo has some additional info", t => {
+  const subject = new AuthInfo()
+
+  subject.setAdditionalInfo("name1", "value1")
+  t.is(subject.getAdditionalInfo("name1"), "value1")
+  subject.deleteAdditionalInfo("name1")
+  t.is(subject.getAdditionalInfo("name1"), undefined)
+
+  subject.setAdditionalInfo("name1", "value1")
+  subject.setAdditionalInfo("name2", "value2")
+  t.is(subject.getAdditionalInfoNames()[0], "name1")
+  t.is(subject.getAdditionalInfoNames()[1], "name2")
+})
