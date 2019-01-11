@@ -14,7 +14,8 @@
     "package": "yarn build:clean && yarn pack",
     "test": "yarn build:clean && yarn lint && nyc ava --fail-fast",
     "test:watch": "yarn build:clean && concurrently -rk \"yarn build:watch\" \"ava -w --fail-fast\"",
-    "release": "yarn build:clean && yarn publish"
+    "release": "yarn build:clean && yarn publish",
+    "docs": "rm -rf docs && typedoc --options ./typedoc.json"
   },
   "repository": {
     "type": "git",
@@ -33,8 +34,7 @@
       "text"
     ]
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "devDependencies": {
     "@types/node": "^10.5.2",
     "ava": "^0.25.0",
@@ -43,6 +43,7 @@
     "sinon": "^6.1.3",
     "ts-sinon": "^1.0.12",
     "tslint": "^5.8.0",
+    "typedoc": "^0.14.1",
     "typescript": "^2.5.3"
   }
 }

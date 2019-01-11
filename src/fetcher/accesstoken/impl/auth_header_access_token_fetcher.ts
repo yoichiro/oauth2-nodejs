@@ -1,6 +1,13 @@
 import {AccessTokenFetcher, FetchResult} from "../access_token_fetcher";
 import {Request} from "../../../models/request";
 
+/**
+ * This class fetches an access token from Authorization Request header.
+ * Actually, the access token is clipped from the header string with a regular
+ * expression.
+ *
+ * @author Yoichiro Tanaka
+ */
 export class AuthHeaderAccessTokenFetcher implements AccessTokenFetcher {
 
   private readonly HEADER_AUTHORIZATION: string = "Authorization"
@@ -9,6 +16,13 @@ export class AuthHeaderAccessTokenFetcher implements AccessTokenFetcher {
   private readonly REGEXP_DIV_COMMA: RegExp = /,\s*/
   private readonly REGEXP_HEADER: RegExp = /^\s*(OAuth|Bearer)(.*)$/
 
+  /**
+	 * Return whether an access token is included in the Authorization
+	 * request header.
+	 *
+	 * @param request The request object.
+	 * @return If the header value has an access token, this result is true.
+	 */
   match(request: Request): boolean {
     const header = request.getHeader(this.HEADER_AUTHORIZATION)
     if (header) {
@@ -17,6 +31,14 @@ export class AuthHeaderAccessTokenFetcher implements AccessTokenFetcher {
     return false
   }
 
+  /**
+	 * Fetch an access token from an Authorization request header and return it.
+	 * This method must be called when a result of the [[match]] method is true
+	 * only.
+	 *
+	 * @param request The request object.
+	 * @return the fetched access token.
+	 */
   fetch(request: Request): FetchResult {
     const header = request.getHeader(this.HEADER_AUTHORIZATION)
     if (!header) {

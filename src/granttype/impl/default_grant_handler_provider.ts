@@ -6,8 +6,19 @@ import {RefreshTokenGrantHandler} from "./refresh_token_grant_handler";
 import {ClientCredentialsGrantHandler} from "./client_credentials_grant_handler";
 import {PasswordGrantHandler} from "./password_grant_handler";
 
+/**
+ * This class is a default implementation for the [[GrantHandlerProvider]] interface.
+ * All grant types are supported in this class. If you don't support all types,
+ * you should not use this implementation, then you should provide your
+ * implementation to support only types you want to use.
+ *
+ * @author Yoichiro Tanaka
+ */
 export class DefaultGrantHandlerProvider extends GrantHandlerProvider {
 
+  /**
+	 * Initialize this instance. All grant handlers are set.
+	 */
   constructor(clientCredentialFetcherProvider: ClientCredentialFetcherProvider) {
     super()
 

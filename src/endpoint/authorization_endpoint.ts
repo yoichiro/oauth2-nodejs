@@ -3,12 +3,20 @@ import {Request} from "../models";
 import {InvalidRequest, InvalidClient, UnknownError, InvalidScope} from "../exceptions";
 import {Result} from "../utils";
 
+/**
+ * This response model class has each parameter's name and value for authorization response.
+ *
+ * @author Yoichiro Tanaka
+ */
 export class AuthorizationEndpointResponse {
 
   private _redirectUri: string
   private _query: {[key: string]: string | number} | undefined
   private _fragment: {[key: string]: string | number} | undefined
 
+  /**
+   * The redirectUri string to navigate the user to the client.
+   */
   get redirectUri(): string {
     return this._redirectUri
   }
@@ -17,6 +25,9 @@ export class AuthorizationEndpointResponse {
     this._redirectUri = value
   }
 
+  /**
+   * The key-value pairs that should be set as query parameter.
+   */
   get query(): { [p: string]: string | number } | undefined {
     return this._query
   }
@@ -25,6 +36,9 @@ export class AuthorizationEndpointResponse {
     this._query = value
   }
 
+  /**
+   * The key-value pairs that should be set as fragment.
+   */
   get fragment(): { [p: string]: string | number } | undefined {
     return this._fragment
   }
@@ -35,19 +49,54 @@ export class AuthorizationEndpointResponse {
 
 }
 
+/**
+ * This class provides an ability for authorization endpoint.
+ *
+ * This class cosists of three features: [[handleRequest]], [[allow]] and [[deny]].
+ * The [[handleRequest]] is called at starting the authorization, for example, when a client
+ * want to send a request to authorize. On the other hand, the [[allow]] and [[deny]]
+ * are called when the user decided whether allowing or denying the authorization request.
+ * Currently, this endpoint is necessary to process the Authorization Code Grant and
+ * Implicit Grant.
+ *
+ * @author Yoichiro Tanaka
+ */
 export class AuthorizationEndpoint {
 
   private _dataHandlerFactory: DataHandlerFactory
   private _allowedResponseTypes: string[]
 
+  /**
+   * Set the [[DataHandlerFactory]] instance.
+   */
   set dataHandlerFactory(value: DataHandlerFactory) {
     this._dataHandlerFactory = value;
   }
 
+  /**
+   * Set the array of response types allowed by your server.
+   */
   set allowedResponseTypes(value: string[]) {
     this._allowedResponseTypes = value;
   }
 
+  /**
+   * Check parameters for authorization request.
+   *
+   * Actually, this method checks the following parameters:
+   *
+   * <ul>
+   * <li>response_type</li>
+   * <li>client_id</li>
+   * <li>redirect_uri</li>
+   * <li>scope</li>
+   * </ul>
+   *
+   * @param request The request object that has each parameter name and value.
+   * @return If all parameters are valid, return the [[Result]] object that
+   * represents successfully. Otherwise, return the [[Result]] object that has
+   * an error information.
+   */
   async handleRequest(request: Request): Promise<Result<void>> {
     const responseType = request.getParameter("response_type")
     if (!responseType || responseType.length === 0) {
@@ -89,6 +138,18 @@ export class AuthorizationEndpoint {
     return Result.success()
   }
 
+  /**
+   * Handle the decision that the user allows the authorization request.
+   *
+   * This method is usually called when the user allowed the authorization request
+   * on the authorization page. You can call this method to create [[AuthInfo]]
+   * and/or access token according to the requested response type at the time.
+   *
+   * @param request The [[Request]] object that has parameters: response_type,
+   * client_id, user_id, redirect_uri, state and scope.
+   * @return The [[Result]] object that has [[AuthorizationEndpointResponse]] object
+   * with each values to respond as query parameters ro fragments.
+   */
   async allow(request: Request): Promise<Result<AuthorizationEndpointResponse>> {
     const dataHandler = this._dataHandlerFactory.create(request)
 
@@ -151,6 +212,17 @@ export class AuthorizationEndpoint {
     return Result.success(response)
   }
 
+  /**
+   * Handle the decision that the user denies the authorization request.
+   *
+   * This method is usually called when the user denied the authorization request
+   * on the authorization page. You can call this method to inform that to the user.
+   *
+   * @param request The [[Request]] object that has parameters: response_type, state
+   * and redirect_uri.
+   * @return The [[Result]] object that has [[AuthorizationEndpointResponse]] object
+   * with an error message to respond as query parameters ro fragments.
+   */
   async deny(request: Request): Promise<Result<AuthorizationEndpointResponse>> {
     const responseType = request.getParameter("response_type")
     if (!responseType || responseType.length === 0) {
