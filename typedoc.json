@@ -1,0 +1,11 @@
+{
+    "out": "docs",
+    "mode": "file",
+    "exclude": [
+        "**/_test/**/*.*",
+        "**/index.ts"
+    ],
+    "excludeExternals": true,
+    "excludePrivate": true,
+    "excludeNotExported": true
+}

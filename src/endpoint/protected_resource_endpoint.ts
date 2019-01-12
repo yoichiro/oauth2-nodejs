@@ -4,46 +4,101 @@ import {Request} from "../models/request";
 import {Result} from "../utils/result";
 import {ExpiredToken, InvalidRequest, InvalidToken} from "../exceptions/oauth_error";
 
+/**
+ * This class has the information about an OAuth2.0 request.
+ *
+ * If a check of the request is passed by [[ProtectedResourceEndpoint]],
+ * this instance will be created. Each endpoint of API supported by
+ * [[ProtectedResourceEndpoint]] can know the user ID, the client ID and
+ * the authorized scopes.
+ *
+ * @author Yoichiro Tanaka
+ *
+ */
 export class ProtectedResourceEndpointResponse {
 
   private _userId: string
   private _clientId: string
   private _scope: string
 
+  /**
+   * This constructor initializes this instance.
+   * @param remoteUser The remote user's ID.
+   * @param clientId The client ID.
+   * @param scope The scope string authorized by the remote user.
+   */
   constructor(userId: string, clientId: string, scope: string) {
     this._userId = userId;
     this._clientId = clientId;
     this._scope = scope;
   }
 
+  /**
+   * Retrieve the remote user's ID.
+   * @return The user ID.
+   */
   get userId(): string {
     return this._userId;
   }
 
+  /**
+   * Retrieve the client ID.
+   * @return The client ID.
+   */
   get clientId(): string {
     return this._clientId;
   }
 
+  /**
+   * Retrieve the scope string.
+   * @return The scope string authorized by the remote user.
+   */
   get scope(): string {
     return this._scope;
   }
 
 }
 
+/**
+ * This class provides the function to judge whether an access to protected
+ * resources can be applied or not.
+ *
+ * For instance, this instance validates an access token sent to each end points
+ * of API. If the access token is valid, this handleResponse() method returns
+ * the information (a client ID, an ID of a remote user and a scope value).
+ * If the access token is invalid, OAuthError will be thrown. The exception
+ * has the reason why the token was judged as invalid.
+ *
+ * @author Yoichiro Tanaka
+ */
 export class ProtectedResourceEndpoint {
 
   private _accessTokenFetcherProvider: AccessTokenFetcherProvider
   private _dataHandlerFactory: DataHandlerFactory
 
-
+  /**
+   * Set the [[AccessTokenFetcherProvider]] instance.
+   */
   set accessTokenFetcherProvider(value: AccessTokenFetcherProvider) {
     this._accessTokenFetcherProvider = value;
   }
 
+  /**
+   * Set the [[DataHandlerFactory]] instance.
+   */
   set dataHandlerFactory(value: DataHandlerFactory) {
     this._dataHandlerFactory = value;
   }
 
+  /**
+	 * This method handles a request and judges whether the request can be
+	 * applied or not.
+	 *
+	 * @param request This argument value has the information of the request.
+	 * @return If the request is valid, this result has three informations (
+	 * Client ID, Scope and User ID). Otherwise, this result has a reason
+	 * why this request was judged as invalid.
+	 */
   public async handleRequest(request: Request): Promise<Result<ProtectedResourceEndpointResponse>> {
     const accessTokenFetcher = this._accessTokenFetcherProvider.getfetcher(request)
     if (!accessTokenFetcher) {
